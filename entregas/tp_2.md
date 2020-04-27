@@ -50,6 +50,12 @@ perseverancia_exito <- function(p) {
 }
 ```
 
+Con todas estas funciones a disposición, puedo contestar las preguntas de la consigna.  
+Empiezo simulando 1000 repeticiones del experimento y para saber las frecuencias de los  
+resultados uso la funcion `table()`.  
+
+### a)
+
 ```
 muchas_perseverancia_exito <- rep(NA, 1000)
 for (i in 1:1000) {
@@ -58,6 +64,9 @@ for (i in 1:1000) {
 table(muchas_perseverancia_exito) / 1000
 mean(muchas_perseverancia_exito)
 ```
+
+Analizando estos resultados podemos conjeturar que se distribuye exponencialmente. Esto es,  
+la cantidad de experimentos que necesitaron `k` intentos disminuye exponencialmente con `k`.
 
 ```
 grid <- seq(0.01, 0.99, by=0.02)
