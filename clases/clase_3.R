@@ -52,12 +52,17 @@ suma_si_hay_positivos <- function(v) {
 
 #3.1
 
-suma_cubilete <- function() {
+suma_cubilete <- function(n=5) {
   dado <- c(1, 2, 3, 4, 5, 6)
-  caras_dado <- sample(dado, 5, replace=TRUE)
+  caras_dado <- sample(dado, n, replace=TRUE)
 
   return(sum(caras_dado))
 }
+
+#3.3
+
+dados_compas <- read.csv('resultados_dados.csv')
+hist(dados_compas$Valor.de.la.suma.obtenido, main='Resultados de mis compañeros')
 
 #3.4 y 3.5
 
@@ -85,4 +90,3 @@ todos_seis <- function() {
 
   return(lanzamientos)
 }
-     
