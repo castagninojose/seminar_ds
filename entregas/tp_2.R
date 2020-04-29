@@ -1,3 +1,5 @@
+library(ggplot2)
+
 exito_fracaso <- function(p) {
   rv <- ifelse(runif(1) < p, 1, 0)
   return(rv)
@@ -27,15 +29,27 @@ perseverancia_exito <- function(p) {
   return(repeticiones)
 }
 
-muchas_perseverancia_exito <- rep(NA, 1000)
-for (i in 1:1000) {
-  muchas_perseverancia_exito[i] <- perseverancia_exito(0.5)
+muchas_perseverancia_exito <- function(p) {
+  rv <- rep(NA, 1000)
+  for (i in 1:1000) {
+    rv[i] <- perseverancia_exito(p)
+  }
+  freqs <- table(rv) / 1000
+  return(mean(rv))
 }
-table(muchas_perseverancia_exito) / 1000
-mean(muchas_perseverancia_exito)
+
+muchas_perseverancia_exito(0.8)
+modelo <- function(p) {
+  p*exp(-p)
+}
 
 
-grid <- seq(0.01, 0.99, by=0.02)
-yy <- lapply(grid, perseverancia_exito)
-plot(grid, yy, type="l", main='Intentos hasta el primer éxito')
+p <- seq(0.01, 0.99, by=0.01)
+yy <- lapply(p, muchas_perseverancia_exito)
+zz <- lapply(p, modelo)
+frame <- data.frame(x=p, intentos=as.numeric(yy), exp=as.numeric(zz))
 
+g <- ggplot(frame, aes(p))
+g <- g + geom_line(aes(y=intentos), colour="yellow")
+g <- g + geom_line(aes(y=exp), colour="blue")
+g
