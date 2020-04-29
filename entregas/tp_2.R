@@ -34,13 +34,12 @@ muchas_perseverancia_exito <- function(p) {
   for (i in 1:1000) {
     rv[i] <- perseverancia_exito(p)
   }
-  freqs <- table(rv) / 1000
   return(mean(rv))
 }
 
 muchas_perseverancia_exito(0.8)
-modelo <- function(p) {
-  p*exp(-p)
+modelo <- function(x) {
+  1/x
 }
 
 
@@ -50,6 +49,7 @@ zz <- lapply(p, modelo)
 frame <- data.frame(x=p, intentos=as.numeric(yy), exp=as.numeric(zz))
 
 g <- ggplot(frame, aes(p))
-g <- g + geom_line(aes(y=intentos), colour="yellow")
-g <- g + geom_line(aes(y=exp), colour="blue")
+g <- g + geom_line(aes(x=p, y=intentos, colour="blue"), size=2)
+g <- g + geom_line(aes(x=p, y=exp, colour="yellow"), size=0.666)
+g <- g + scale_color_identity(guide="legend", name="", labels = c("Resultados", "Modelo"))
 g
