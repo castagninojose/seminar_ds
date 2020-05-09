@@ -70,18 +70,58 @@ mean(df_estaturas$altura[generar_ventana(varones, h=1)])
 sum(generar_ventana(df_varones, x=159, h=1))
 mean(df_estaturas$altura[generar_ventana(varones, h=1)])
 
-mean(df_estaturas$altura[generar_ventana(varones, c=157, h=3)])
-mean(df_estaturas$altura[generar_ventana(varones, c=160, h=3)])
+mean(df_estaturas$altura[generar_ventana(varones, x=157, h=3)])
+mean(df_estaturas$altura[generar_ventana(varones, x=160, h=3)])
 
 g <- ggplot(data=df_varones, aes(altura))
 g + geom_point()
 
 #15
 
-
-predigo_altura_masculio <- function(
-  alturas=df_varones$altura, alturas_mdes=df_varones$altura_madre, x=158, h=5
-) {
-  mean(alturas[generar_ventana(alturas, x=x, h=h)])
-  
+predigo_altura_masculino <- function(altura, altura_madre, altura_mama_nueva, h) {
+  m <- (altura_madre <= altura_mama_nueva + h) & (altura_madre >= altura_mama_nueva - h)
+  rv <- mean(altura[m])
+  return(rv)
 }
+
+#16
+df_varones = df_estaturas[varones_mask,]
+a <- min(df_varones$altura_madre)
+b <- max(df_varones$altura_madre)
+centros <- seq(a, b, length.out=20)
+predicciones_0.1 <- lapply(
+  centros,
+  predigo_altura_masculino,
+  altura=df_varones$altura,
+  altura_madre=df_varones$altura_madre,
+  h=0.5
+)
+
+predicciones_1 <- lapply(
+  centros,
+  predigo_altura_masculino,
+  altura=df_varones$altura,
+  altura_madre=df_varones$altura_madre,
+  h=1
+)
+
+predicciones_5 <- lapply(
+  centros,
+  predigo_altura_masculino,
+  altura=df_varones$altura,
+  altura_madre=df_varones$altura_madre,
+  h=5
+)
+
+df_pred <- data.frame(
+  x=centros,
+  h_0.1=as.numeric(predicciones_0.1),
+  h_1=as.numeric(predicciones_1),
+  h_5=as.numeric(predicciones_5)
+)
+g <- ggplot(df_pred, aes(centros))
+g <- g + geom_line(aes(x=centros, y=h_0.1, color="h=0.1"))
+g <- g + geom_line(aes(x=centros, y=h_1, color="h=1"))
+g <- g + geom_line(aes(x=centros, y=h_5, color="h=5"))
+g <- g + labs(title="Predicciones", x="Alturas madre", y="Alturas hijo")
+g
