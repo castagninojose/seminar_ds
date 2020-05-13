@@ -1,6 +1,7 @@
+library(docstring)
 library(ggplot2)
 
-#1
+
 setwd("/home/puff/git-repos/seminar_ds/entregas/")
 df_estaturas <- read.csv("alturas_n_500.csv")
 
@@ -13,16 +14,29 @@ generar_ventana <- function(df, x=156, h=1) {
   df$altura_madre <= x + h & df$altura_madre >= x - h
 }
 
-preparar_predicciones <- function(df, x=158, h=5) {
-  m <- df$altura_madre <= x + h & df$altura_madre >= x - h
-  hijos <- df[m,]$altura
-  mdes <- df[m,]$altura_madre
-  return(c(hijos, mdes))
-}
 
-predigo_altura_masculio <- function(altura, altura_madre, altura_mama_nueva=158, h=5) {
-  mean(altura)
+predigo_ventana <- function(X_obs, Y_obs, x_nuevo, h) {
+  #' Predecir altura.
+  #' 
+  #' @description Para la prediccion de un nuevo `X` usa
+  #' un promedio movil centrado en `x_nuevo` de tamaño `h`
+  #' y una nueva observación de `Y`.
+  #' 
+  #' @param X_obs vector. Las alturas de las madres.
+  #' @param Y_obs vector. Las alturas de los individuos.
+  #' @param x_nuevo float. Altura de la madre nueva.
+  #' @param h float. Radio de la ventana movil.
+  
+  m <- (X_obs <= x_nuevo + h) & (X_obs >= x_nuevo - h)
+  if (sum(m) == 0) {  # casos con ninguna Y_obs dentro de la ventana.
+    rv <- NA
+  }
+  else {
+    rv <- mean(Y_obs[m])
+  }
+  return(rv)
 }
+  
 
 #2
 colnames(df_estaturas)
@@ -39,6 +53,15 @@ plot(density(df_estaturas$altura))
 #6
 g <- ggplot(data=df_estaturas, aes(altura, color=genero))
 g + geom_histogram(aes(x=altura, color=genero))
+
+
+#7
+#plot(df_estaturas$altura_madre, df_estaturas$altura)
+g <- ggplot(data=df_estaturas, aes(altura))
+g <- g + geom_histogram(aes(x=altura, y=..density..), binwidth=1, fill='blue')
+g <- g + geom_density() + facet_grid(.~genero)
+g
+
 
 #7
 #plot(df_estaturas$altura_madre, df_estaturas$altura)
@@ -78,38 +101,34 @@ g + geom_point()
 
 #15
 
-predigo_altura_masculino <- function(altura, altura_madre, altura_mama_nueva, h) {
-  m <- (altura_madre <= altura_mama_nueva + h) & (altura_madre >= altura_mama_nueva - h)
-  rv <- mean(altura[m])
-  return(rv)
-}
 
 #16
 df_varones = df_estaturas[varones_mask,]
 a <- min(df_varones$altura_madre)
 b <- max(df_varones$altura_madre)
-centros <- seq(a, b, length.out=20)
+centros <- seq(a, b, length.out=50)
+
 predicciones_0.1 <- lapply(
   centros,
-  predigo_altura_masculino,
-  altura=df_varones$altura,
-  altura_madre=df_varones$altura_madre,
+  predigo_ventana,
+  Y_obs=df_varones$altura,
+  X_obs=df_varones$altura_madre,
   h=0.5
 )
 
 predicciones_1 <- lapply(
   centros,
-  predigo_altura_masculino,
-  altura=df_varones$altura,
-  altura_madre=df_varones$altura_madre,
+  predigo_ventana,
+  Y_obs=df_varones$altura,
+  X_obs=df_varones$altura_madre,
   h=1
 )
 
 predicciones_5 <- lapply(
   centros,
-  predigo_altura_masculino,
-  altura=df_varones$altura,
-  altura_madre=df_varones$altura_madre,
+  predigo_ventana,
+  Y_obs=df_varones$altura,
+  X_obs=df_varones$altura_madre,
   h=5
 )
 
@@ -119,6 +138,7 @@ df_pred <- data.frame(
   h_1=as.numeric(predicciones_1),
   h_5=as.numeric(predicciones_5)
 )
+
 g <- ggplot(df_pred, aes(centros))
 g <- g + geom_line(aes(x=centros, y=h_0.1, color="h=0.1"))
 g <- g + geom_line(aes(x=centros, y=h_1, color="h=1"))
