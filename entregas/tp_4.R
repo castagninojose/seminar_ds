@@ -1,7 +1,7 @@
 library(readr)
 library(docstring)
 library(ggplot2)
-# setwd('/home/jose/git-repos/seminar_ds')
+setwd('/home/jose/git-repos/seminar_ds')
 
 moda <- function(v) {
   #' @descrption Función genérica para calcular la moda
@@ -13,7 +13,8 @@ moda <- function(v) {
 }
 
 # 1.1
-df_estaturas <- read.csv("~/Documents/cms/seminar/data/alturas_n_500.csv")
+df_estaturas <- read_csv("alturas_n_500.csv")
+df_testeo <- read_csv("alturas_testeo.csv")
 g <- ggplot(data=df_estaturas, aes(altura))
 g <- g + geom_histogram(aes(x=altura, y=..density..), binwidth=1, fill='blue')
 g <- g + geom_density() + facet_grid(.~genero)
@@ -82,8 +83,34 @@ clasifico_generativo <- function(X_obs, Y_obs, x_nuevo) {
   
   p <- f_1 * (1 - mean(m)) >= (f_0 * mean(m))
 
-  return(sum(p))
+  return(ifelse(p, 'F', 'M'))
 }
 
 clasifico_generativo(df_estaturas$altura, df_estaturas$genero, 165)
 clasifico_generativo(df_estaturas$altura, df_estaturas$genero, 175)
+
+# 10 Errores empíricos
+yhats_kkn <- lapply(
+  df_testeo$altura,
+  clasifico_vecinos,
+  Y_obs=df_estaturas$genero,
+  X_obs=df_estaturas$altura
+)
+
+yhats_movil <- lapply(
+  df_testeo$altura,
+  clasifico_movil,
+  Y_obs=df_estaturas$genero,
+  X_obs=df_estaturas$altura
+)
+
+yhats_gen <- lapply(
+  df_testeo$altura,
+  clasifico_generativo,
+  Y_obs=df_estaturas$genero,
+  X_obs=df_estaturas$altura
+)
+
+mean(yhats_gen != df_testeo$genero)
+mean(yhats_kkn != df_testeo$genero)
+mean(yhats_movil != df_testeo$genero)
