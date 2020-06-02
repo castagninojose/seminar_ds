@@ -1,15 +1,13 @@
 library(readr)
+library(docstring)
 library(ggplot2)
 # setwd('/home/jose/git-repos/seminar_ds')
 
 moda <- function(v) {
-  #' Moda.
-  #'
   #' @descrption Función genérica para calcular la moda
-  #' de un vector `v` cualquiera (numérico o no).
+  #' de un vector `v` cualquiera.
   #'
-  #' @param v vector. En nuestro caso sera un factor de dos niveles (F y M).
-  
+  #' @param v vector. En nuestro caso sera un factor de niveles {F, M}.
   t <- table(v)
   return(names(t)[which.max(t)])
 }
@@ -35,12 +33,13 @@ df_estaturas[vent,]
 clasifico_vecinos <- function(X_obs, Y_obs, x_nuevo, k=10) {
   #' Predecir género con KNN.
   #' 
-  #' @description Usa la regla de la mayoría para los `k` vecinos más cercanos (KNN)
-  #' para clasificar a los individuos en "F" o "M" según su altura.
+  #' @description Usa la regla de la mayoría para los `k` vecinos más 
+  #' cercanos (KNN) para clasificar a los individuos en "F" o "M" según
+  #' su altura.
   #' 
   #' @param X_obs vector. Las alturas de las personas.
-  #' @param Y_obs vector. El género de los individuos.
-  #' @param x_nuevo float. Altura del individuo a clasificar.
+  #' @param Y_obs factor. El género de las personas.
+  #' @param x_nuevo float. Altura de la persona a clasificar.
   #' @param k int. Cantidad de vecinos más cercanos.
   dist <- abs(x_nuevo - X_obs)
   mas_cercanos <- Y_obs[order(dist)][1:k]
@@ -52,15 +51,11 @@ clasifico_vecinos(df_estaturas$altura, df_estaturas$genero, 175)
 
 # 2.5
 clasifico_movil <- function(X_obs, Y_obs, x_nuevo, h=1) {
-  #' Predecir género con promedios móviles.
+  #' @description  Predecir género con promedios móviles.
   #' 
-  #' @description Para la prediccion de un nuevo `X` usa
-  #' un promedio movil centrado en `x_nuevo` de tamaño `h`
-  #' y una nueva observación de `Y`.
-  #' 
-  #' @param X_obs vector. Las alturas de las madres.
-  #' @param Y_obs vector. Las alturas de los individuos.
-  #' @param x_nuevo float. Altura del individuo a clasificar.
+  #' @param X_obs vector. Las alturas de las personas.
+  #' @param Y_obs factor. El género de los personas.
+  #' @param x_nuevo float. Altura de la persona a clasificar.
   #' @param h float. Radio de la ventana movil.
   vent <- abs(x_nuevo - X_obs) <= h
   return(moda((Y_obs[vent])))
@@ -72,15 +67,20 @@ clasifico_movil(df_estaturas$altura, df_estaturas$genero, 175)
 
 # 3.9
 clasifico_generativo <- function(X_obs, Y_obs, x_nuevo) {
-  proba_0 <- mean(Y_obs=='M')
-  mu_0 <- mean(X_obs[Y_obs=='M'])
-  mu_1 <- mean(X_obs[Y_obs=='F'])
-  sigma_0 <- sd(X_obs[Y_obs=='M'])
-  sigma_1 <- sd(X_obs[Y_obs=='F'])
-  f_0 <- dnorm(x_nuevo, mean=mu_0, sd=sigma_0)
-  f_1 <- dnorm(x_nuevo, mean=mu_1, sd=sigma_1)
+  #' Predecir género con método generativo.
+  #' 
+  #' @description Para predecir el género usa
+  #' la regla de Bayes óptima estimando a partir de nuestros
+  #' datos las densidades a posteriori y la P(Y=1).
+  #'  
+  #' @param X_obs vector. Las alturas de los individuos.
+  #' @param Y_obs vector. El género de los individuos.
+  #' @param x_nuevo float. Altura del individuo a clasificar.
+  m <- Y_obs == 'F'
+  f_0 <- dnorm(x_nuevo, mean=mean(X_obs[!m]), sd=sd(X_obs[!m]))
+  f_1 <- dnorm(x_nuevo, mean=mean(X_obs[m]), sd=sd(X_obs[m]))
   
-  p <- ( f_1 * (1 - proba_0) ) >= (f_0 * proba_0)
+  p <- f_1 * (1 - mean(m)) >= (f_0 * mean(m))
 
   return(sum(p))
 }
