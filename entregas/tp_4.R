@@ -52,7 +52,7 @@ clasifico_vecinos(df_estaturas$altura, df_estaturas$genero, 175)
 
 # 2.5
 clasifico_movil <- function(X_obs, Y_obs, x_nuevo, h=1) {
-  #' @description  Predecir género con promedios móviles.
+  #' @description  Predecir género con regla de la mayoria con ventana móvil.
   #' 
   #' @param X_obs vector. Las alturas de las personas.
   #' @param Y_obs factor. El género de los personas.
@@ -90,27 +90,75 @@ clasifico_generativo(df_estaturas$altura, df_estaturas$genero, 165)
 clasifico_generativo(df_estaturas$altura, df_estaturas$genero, 175)
 
 # 10 Errores empíricos
-yhats_kkn <- lapply(
+yhats_test_knn <- lapply(
   df_testeo$altura,
   clasifico_vecinos,
   Y_obs=df_estaturas$genero,
   X_obs=df_estaturas$altura
 )
 
-yhats_movil <- lapply(
+yhats_test_movil <- lapply(
   df_testeo$altura,
   clasifico_movil,
   Y_obs=df_estaturas$genero,
   X_obs=df_estaturas$altura
 )
 
-yhats_gen <- lapply(
+yhats_test_gen <- lapply(
   df_testeo$altura,
   clasifico_generativo,
   Y_obs=df_estaturas$genero,
   X_obs=df_estaturas$altura
 )
 
-mean(yhats_gen != df_testeo$genero)
-mean(yhats_kkn != df_testeo$genero)
-mean(yhats_movil != df_testeo$genero)
+mean(yhats_test_gen != df_testeo$genero)
+mean(yhats_test_knn != df_testeo$genero)
+mean(yhats_test_movil != df_testeo$genero)
+
+# 5.11
+
+x_nuevos <- seq(160, 170, .01)
+
+yhats_knn <- lapply(
+  x_nuevos,
+  clasifico_vecinos,
+  Y_obs=df_estaturas$genero,
+  X_obs=df_estaturas$altura
+)
+
+yhats_movil <- lapply(
+  x_nuevos,
+  clasifico_movil,
+  Y_obs=df_estaturas$genero,
+  X_obs=df_estaturas$altura
+)
+
+yhats_gen <- lapply(
+  x_nuevos,
+  clasifico_generativo,
+  Y_obs=df_estaturas$genero,
+  X_obs=df_estaturas$altura
+)
+
+# yha11 <- lapply(
+#   x_nuevos,
+#   clasifico_vecinos,
+#   Y_obs=df_estaturas$genero,
+#   X_obs=df_estaturas$altura,
+#   k=10
+# )
+
+df_clasificadores <- data.frame(
+  x=x_nuevos,
+  knn=yhats_knn,
+  mov=yhats_movil,
+  gen=yhats_gen
+)
+
+g <- ggplot(df_clasificadores, aes(x_nuevos))
+g <- g + geom_line(aes(x=x_nuevos, y=yhats, color="h=0.1"))
+# g <- g + geom_line(aes(x=centros, y=h_1, color="h=1"))
+# g <- g + geom_line(aes(x=centros, y=h_5, color="h=5"))
+# g <- g + labs(title="Predicciones", x="Alturas madre", y="Alturas hijo")
+g
+plot(df_clasificadores$x, df_clasificadores$knn)

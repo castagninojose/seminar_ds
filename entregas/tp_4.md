@@ -1,7 +1,7 @@
 # Trabajo Práctico N°4
 ## Clasificación
 
-En este trabajo vamos a armar tres clasificadores, tal y como vimos en clase, a partir de la altura
+En este trabajo vamos a armar tres clasificadores. A partir de la altura
 de una persona le asignarán `F` o `M`, cada uno usando los datos a su manera para hacer la predicción;
 
 * `clasifico_vecinos()` usando la regla de la mayoría de los KNN.
@@ -24,7 +24,7 @@ moda <- function(v) {
 
 Con esta función puedo armar los dos primeros clasificadores.
 
-## K vecinos más cercanos
+### K vecinos más cercanos
 
 En el caso de KNN usé
 la función `order()` para conseguir los vecinos más cercanos. Esta operación para nuestro
@@ -81,7 +81,7 @@ Para este caso también vemos que se comporta de manera razonable en los casos s
 
 Para este caso armé un indicador de las personas de género `F`. Esto es; un vector de que tiene
 `TRUE` en los indices en los que nuestra variable `Y_obs` tiene `F`. Con ésto puedo hacer muchas de las cuentas que necesito. Ya sea en la estimación de $$P(Y=1)$$ o de las densidades $$f_0$$ y $$f_1$$. Por último, con todo esto
-armo el predicado de la condición que uso para convertir en `F` o `M` según corresponda.
+armo el predicado de la condición $$g_op = 1$$ que uso para convertir en `F` o `M` según corresponda.
 
 ```{r}
 clasifico_generativo <- function(X_obs, Y_obs, x_nuevo) {
@@ -108,7 +108,7 @@ Como los anteriores, se comporta razonablemente para los casos típicos.
 
 > clasifico_generativo(df_estaturas$altura, df_estaturas$genero, 165)
 [1] "F"
-> clasifico_generativo(df_estaturas$altura, df_estaturas$genero, 175)
+clasifico_generativo(df_estaturas$altura, df_estaturas$genero, 175)
 [1] "M"
 
 # 10 Errores empíricos.
