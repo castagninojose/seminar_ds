@@ -1,6 +1,11 @@
-library('readr')
-library('docstring')
-library('ggplot2')
+# T.P. N°5.
+
+Además de la función `class.nopar` para clasificar los hongos incluyo algunas de las
+cuales esta depende para que puedan probarla correctamente. Espero haber respetado
+las notaciones de los inputs que mencionaron en clase.
+
+Además puse un pequeño script que usé para buscar las `h0` y `h1` usando los errores
+del clasificador.
 
 
 setwd("/home/puff/git-repos/seminar_ds/data/")
@@ -33,6 +38,7 @@ f_sombrero = function(x, k, datos, h) {
   return(rv)
 }
 
+```{r}
 class.nopar <- function(x_nuevo, X_obs, Y_obs, h1=0.1, h0=0.33) {
   #' Predecir la variedad de hongo.
   #' 
@@ -53,8 +59,11 @@ class.nopar <- function(x_nuevo, X_obs, Y_obs, h1=0.1, h0=0.33) {
   
   return(ifelse(p, 1, 2))
 }
+```
 
-# Script para jugar con distintas ventanas inspirado en lo que vimos en clase.
+#### "grid search"
+
+```
 h0 <- seq(0.1, 1, 0.1)
 h1 <- seq(0.1, 1, 0.1)
 clasificados <- c()
@@ -75,58 +84,6 @@ for (i in 1:length(h0)) {
     results[i,j] <- mean(clasificados != df_hongos$Variety)
   }
 }
-
-results[which.min(results)]
-alcanza_minimo_en <- which(results==min(results), arr.ind=TRUE)
-h0[4]
-h1[10]
-
-for (k in 1:length(df_hongos$Variety)) {
-  shit_df <- df_hongos[-k,]
-  new_r = class.nopar(
-    x_nuevo=df_hongos$Height[k],
-    X_obs=shit_df$Height,
-    Y_obs=shit_df$Variety,
-    h0=0.33,
-    h1=0.1
-  )
-  clasificados[k] <- new_r
-}
-mean(clasificados != df_hongos$Variety)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-alturas <- seq(0, 13, 0.1)
-est_f <- lapply(
-  alturas,
-  f_sombrero,
-  k=gauss_k,
-  datos=df_hongos$Height,
-  h=2
-)
-
-plot_df <- data.frame(
-  x=alturas,
-  f_s=as.numeric(est_f)
-)
-
-g <- ggplot(data=plot_df, aes(alturas))
-g <- g + geom_line(aes(x=alturas, y=est_f, color="h=0.1"))
-#g <- g + geom_line(aes(x=, y=h_0.1, color="h=0.1"))
-#g <- g + geom_line(aes(x=centros, y=h_1, color="h=1"))
-#g <- g + geom_line(aes(x=centros, y=h_5, color="h=5"))
-#g <- g + labs(title="Predicciones", x="Alturas madre", y="Alturas hijo")
-g
-
+```
+Una vez corrido ese script, podemos buscar los minimos con `results[which.min(results)]`
+o con `which(results==min(results), arr.ind=TRUE)` e ir refinando los `h`.
