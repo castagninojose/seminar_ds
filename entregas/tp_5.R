@@ -29,15 +29,32 @@ f_sombrero = function(x, k, datos, h) {
 
 class.nopar <- function(X_new,  X_datos, Y_datos, h1, h0) {
 
-  m <- Y_obs == '1'
-  f_0 <- f_sombrero(x_new, gauss_k, X_datos[m], h0)
-  f_1 <- f_sombrero(x_new, gauss_k, X_datos[!m], h1)
-  f_1 <- f_sombrero(x_nuevo, mean=mean(X_obs[m]), sd=sd(X_obs[m]))
+  m <- Y_datos == 1
+  f_0 <- f_sombrero(X_new, gauss_k, X_datos[!m], h0)
+  f_1 <- f_sombrero(X_new, gauss_k, X_datos[m], h1)
   
   p <- f_1 * (1 - mean(m)) >= (f_0 * mean(m))
   
-  return(ifelse(p, '1', '2'))
+  return(ifelse(p, 1, 2))
 }
+
+
+results <- c()
+for (k in 1:length(df_hongos$Variety)) {
+  shit_df <- df_hongos[-k,]
+  new_r = class.nopar(
+    X_new=df_hongos$Height[k],
+    X_datos=shit_df$Height,
+    Y_datos=shit_df$Variety,
+    h0=0.69,
+    h1=0.38
+  )
+  #print(new_r)
+  results <- c(results,new_r)
+  print(mean(results != df_hongos$Variety))
+}
+
+
 
 alturas <- seq(0, 13, 0.1)
 est_f <- lapply(
