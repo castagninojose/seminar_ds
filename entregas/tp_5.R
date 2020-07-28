@@ -39,20 +39,57 @@ class.nopar <- function(X_new,  X_datos, Y_datos, h1, h0) {
 }
 
 
-results <- c()
+h0 <- seq(0.3, 0.6, 0.01)
+h1 <- seq(0.01, 0.3, 0.01)
+clasificados <- c()
+results <- matrix(data=NA, nrow=length(h0), ncol=length(h1))
+for (i in 1:length(h0)) {
+  for (j in 1:length(h1)) {
+    for (k in 1:length(df_hongos$Variety)) {
+      shit_df <- df_hongos[-k,]
+      new_r = class.nopar(
+        X_new=df_hongos$Height[k],
+        X_datos=shit_df$Height,
+        Y_datos=shit_df$Variety,
+        h0=h0[i],
+        h1=h1[j]
+      )
+      clasificados[k] <- new_r
+    }
+    #print(mean(clasificados != df_hongos$Variety))
+    results[i,j] <- mean(clasificados != df_hongos$Variety)
+  }
+}
+
+results[which.min(results)]
+h0[4]
+h1[10]
+
+
 for (k in 1:length(df_hongos$Variety)) {
   shit_df <- df_hongos[-k,]
   new_r = class.nopar(
     X_new=df_hongos$Height[k],
     X_datos=shit_df$Height,
     Y_datos=shit_df$Variety,
-    h0=0.69,
-    h1=0.38
+    h0=0.33,
+    h1=0.1
   )
-  #print(new_r)
-  results <- c(results,new_r)
-  print(mean(results != df_hongos$Variety))
+  clasificados[k] <- new_r
 }
+mean(clasificados != df_hongos$Variety)
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
