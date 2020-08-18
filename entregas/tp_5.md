@@ -1,23 +1,16 @@
 # T.P. N°5.
 
 Además de la función `class.nopar` para clasificar los hongos incluyo algunas de las
-cuales esta depende para que puedan probarla correctamente. Espero haber respetado
+cuales ésta depende para que puedan probarla correctamente. Espero haber respetado
 las notaciones de los inputs que mencionaron en clase.
 
-Además puse un pequeño script que usé para buscar las `h0` y `h1` usando los errores
-del clasificador.
+Además puse un pequeño script que usé para buscar las `h0` y `h1` jugando con los
+errores del clasificador.
 
 
-setwd("/home/puff/git-repos/seminar_ds/data/")
-df_hongos <- read_table2("hongos_clasificados.txt")
+### Estimación no paramétrica de la densidad.
 
-hist(df_hongos$Height)
-
-gauss_k <- function(x) {
-  k <- sqrt(2*pi)*exp(-(x**2)/2)
-  return(k)
-}
-
+```{r}
 f_sombrero = function(x, k, datos, h) {
   #' Estimacion no paramétrica.
   #' 
@@ -37,7 +30,9 @@ f_sombrero = function(x, k, datos, h) {
   rv <- s / (n*h)
   return(rv)
 }
+```
 
+### Clasificador
 ```{r}
 class.nopar <- function(x_nuevo, X_obs, Y_obs, h1=0.1, h0=0.33) {
   #' Predecir la variedad de hongo.
@@ -61,7 +56,16 @@ class.nopar <- function(x_nuevo, X_obs, Y_obs, h1=0.1, h0=0.33) {
 }
 ```
 
-#### "grid search"
+Aquí la función `gauss_k()` es simplemente la densidad de una normal $$(0,1).$$
+
+```{r}
+gauss_k <- function(x) {
+  k <- sqrt(2*pi)*exp(-(x**2)/2)
+  return(k)
+}
+```
+
+#### Misc: "grid search"
 
 ```
 h0 <- seq(0.1, 1, 0.1)
