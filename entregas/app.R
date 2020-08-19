@@ -62,11 +62,11 @@ server <- shinyServer(function(input, output) {
     analytical_sd <- sqrt(n*pe*(1-pe)/sample_size)
     
     dominio <- seq(min(sample_means), max(sample_means), length.out=500)
-    normal_teo <- dnorm(dominio, mean=sm_avg, sd=sm_sd)
+    normal_teo <- dnorm(dominio, mean=sample_size*pe, sd=analytical_sd)
     
     hist_df <- as.data.frame(sample_means)
     
-    normal_teo_df <- with(hist_df, data.frame(x = dominio, y =normal_teo))
+    normal_teo_df <- with(hist_df, data.frame(x=dominio, y=normal_teo))
 
     fig <- ggplot(hist_df,aes(x=sample_means)) +
       geom_histogram(aes( y = ..density..),
