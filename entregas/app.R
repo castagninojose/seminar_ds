@@ -16,21 +16,16 @@ ui <- shinyUI(fluidPage(
     sidebarPanel(
       sliderInput("obs", 
                   "N:", 
-                  min = 1, 
-                  max = 500, 
-                  value = 300)
+                  min = 2, 
+                  max = 2000, 
+                  value = 1000)
       ,
       sliderInput("sample_size", 
                   "Sample Size:", 
-                  min = 10, 
-                  max = 1000, 
+                  min = 2, 
+                  max = 100, 
                   value = 21)
-      ,
-      sliderInput("bin", 
-                  "Bins:", 
-                  min = 5, 
-                  max = 30, 
-                  value = 10)
+      
     ),
     
     # Show a plot of the generated distribution
@@ -74,7 +69,7 @@ server <- shinyServer(function(input, output) {
     normal_teo_df <- with(hist_df, data.frame(x = dominio, y =normal_teo))
 
     fig <- ggplot(hist_df,aes(x=sample_means)) +
-      geom_histogram(aes( y = ..density..),bins=bins,
+      geom_histogram(aes( y = ..density..),
                      binwidth = 1, fill = "grey", color = "black") + 
       geom_density(alpha=.8, colour='dodgerblue') +
       geom_line(data = normal_teo_df, aes(x =x, y = y), color = "red")
@@ -84,7 +79,7 @@ server <- shinyServer(function(input, output) {
     #fig <- fig %>% add_trace(x=sample_means, y=density, type='scatter')
     
     
-    fig
+    
     
     
     #fig <- ggplot(as.data.frame(sample_means), aes(x=sample_means)) + 
@@ -96,7 +91,7 @@ server <- shinyServer(function(input, output) {
   output$distPlot <- renderPlotly({
     
     # generate an rnorm distribution and plot it
-    print(ggplotly(tcl_viz(input$obs,input$sample_size, input$bin)))
+    print(ggplotly(tcl_viz(input$obs,input$sample_size)))
   })
   
 })
