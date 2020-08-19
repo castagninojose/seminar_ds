@@ -45,4 +45,3 @@ mean(df_gas_2$gas_equipo_2[1:30])
 
 quantile(df_gas_2$gas_equipo_2[1:5], probs = 0.9)
 quantile(df_gas_2$gas_equipo_2[1:30], probs = 0.9)
-

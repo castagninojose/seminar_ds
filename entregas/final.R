@@ -9,7 +9,7 @@ setwd("/home/puff/git-repos/seminar_ds/entregas/")
 
 
 
-tcl_viz <- function(n=300, sample_size=21) {
+tlc_viz <- function(n=300, sample_size=21) {
   pe <- 0.5
   sim <- rbinom(n, sample_size, pe)
   m <- matrix(sim, n)
@@ -21,15 +21,19 @@ tcl_viz <- function(n=300, sample_size=21) {
   sm_sd <- sd(sample_means)
   analytical_sd <- sqrt(n*pe*(1-pe)/sample_size)
   
-  dominio <- seq(min(sample_means), max(sample_means), length.out=500)
-  normal_teo <- dnorm(dominio, mean=sm_avg, sd=sm_sd)
   
-  fig <- plot_ly(x=sample_means, type = 'histogram', histnorm = 'probability')
-  fig <- fig %>% add_trace(x=dominio, y=normal_teo, type='scatter')
+  c)
+  return(c(sample_means, dominio, normal_teo))
+  
+  #fig_ly <- plot_ly(x=sample_means, type = 'histogram', histnorm = 'probability')
+  #fig_ly <- fig_ly %>% add_trace(x=dominio, y=normal_teo, type='scatter')
   #fig <- fig %>% add_trace(x=sample_means, y=density, type='scatter')
-  fig
+  
+  # fig_gg <- ggplot(data)
+  #fig_ly
+  return(fig_ly)
 }
-tcl_viz()
+tlc_viz(n=10, sample_size = 4)
 
 
 ui <- fluidPage(
@@ -38,15 +42,15 @@ ui <- fluidPage(
   sidebarLayout(
     sidebarPanel(
       # input: slider para el tamaño de la muestra
-      sliderInput(inputId = "tamaño de la muestra",
-                  label = "n:",
+      sliderInput(inputId = "sample_size",
+                  label = "Tamaño de las muestras",
                   min = 2,
                   max = 500,
                   value = 30)
     ),
     sidebarPanel( # input: slider para el numero de repeticiones
-      sliderInput(inputId = "número de repeticiones",
-                  label = "n:",
+      sliderInput(inputId = "n",
+                  label = "Número de repeticiones",
                   min = 10,
                   max = 1000,
                   value = 200)
@@ -55,21 +59,20 @@ ui <- fluidPage(
     # Main panel for displaying outputs ----
     mainPanel(
       # Output: Histogram ----
-      plotOutput(outputId = "distPlot")
+      plotlyOutput('plot')
     )
   )
 )
 
 # Define server logic required to draw a histogram ----
 server <- function(input, output) {
-  output$distPlot <- renderPlot({
-    x    <- airquality$Ozone
-    bins <- seq(min(x), max(x), length.out = input$repeticiones + 1)
-    hist(x, breaks = bins, col = "#75AADB", border = "black",
-         xlab = "algo",
-         main = "una cosa")
-    
-  })
+  sim <- tlc_viz(n=input$n, sample_size=input$sample_size)
+  dominio <- seq(min(sample_means), max(sample_means), length.out=500)
+  normal_teo <- dnorm(dominio, mean=sm_avg, sd=sm_sd)
+  output$plot <- renderPlotly(
+    fig_ly <- plot_ly(x=sample_means, type='histogram', histnorm='probability',)
+    fig_ly <- fig_ly %>% add_trace(x=dominio, y=normal_teo, type='scatter')
+  )
   
 }
 

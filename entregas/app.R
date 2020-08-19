@@ -68,8 +68,8 @@ server <- shinyServer(function(input, output) {
     #fig <- fig %>% add_trace(x=sample_means, y=density, type='scatter')
     
     fig <- ggplot(as.data.frame(sample_means), aes(x=sample_means)) + 
-      geom_histogram(aes(y=..density..),bins=bins, colour="blue", fill="dodgerblue")+
-      geom_density(alpha=.8, colour='red')  #  Esta es la density de los datos, no se bien aun como agregar la otra (normal_teo)
+      geom_histogram(aes(y=..density..),bins=bins, colour="blue", fill="dodgerblue") +
+      geom_density(alpha=.8, colour='red') + stat_function(fun=dnorm, args = list(mean=sm_avg,sd=sm_sd))#  Esta es la density de los datos, no se bien aun como agregar la otra (normal_teo)
 
   }
   
