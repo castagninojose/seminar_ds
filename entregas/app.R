@@ -10,7 +10,6 @@ Este teorema es clave en la teoría de probabilidades dado que implica que los m
 a problemas que involucran otro tipo de distribuciones. Formalmente, sea $ \\{X_1,\\ldots ,X_n\\}$ una muestra i.i.d de tamaño $n$ con media $\\mu$ y varianza $0< \\sigma^2 < \\infty$. 
 Sea $S_n = \\sum\\limits_{i=1}^n X_i$, entonces
 $$ \\lim\\limits_{n \\rightarrow \\infty} P \\Big( \\frac{S_n - n \\mu}{\\sigma \\sqrt{n}} \\leq z \\Big) = \\Phi(z)$$
-
 Donde $ \\Phi$ representa la función de distribución acumulada de una $ \\mathcal{N}(0,1)$"
 
 # Define UI for application that plots random distributions 
@@ -44,10 +43,14 @@ ui <- shinyUI(fluidPage(
     
     # Show a plot of the generated distribution
     mainPanel(
-      plotlyOutput("distPlot"),
-      p("* En rojo es la normal teorica", style = "color:red"),
-      p("* En azul el density del histograma", style = "color:blue"),
-      withMathJax(latex_theory)
+      
+      tabsetPanel(
+        id='tabset',
+        tabPanel("TLC",  plotlyOutput("distPlot"),
+                 withMathJax(latex_theory)),
+        tabPanel("Sampling Distribution",  plotlyOutput("samplehist")))        
+      
+      
     )
   )
 ))
@@ -62,6 +65,7 @@ server <- shinyServer(function(input, output) {
   #     re-executed when inputs change
   #  2) Its output type is a plot 
   #
+  
   
   tcl_viz <- function(n=300, sample_size=21, p=0.5) {
     
@@ -81,31 +85,54 @@ server <- shinyServer(function(input, output) {
     hist_df <- as.data.frame(sample_means)
     
     normal_teo_df <- with(hist_df, data.frame(x=dominio, y=normal_teo))
-
     fig <- ggplot(hist_df,aes(x=sample_means)) +
       geom_histogram(aes(y=..density..),
                      bins=sample_size, fill="grey", color="black") + 
-      geom_density(alpha=.8, colour='dodgerblue') +
-      geom_line(data=normal_teo_df, aes(x=x, y=y), color="red")
-
-    #fig <- plot_ly(x=sample_means, type = 'histogram', histnorm = 'probability')
-    #fig <- fig %>% add_trace(x=dominio, y=normal_teo, type='scatter')
-    #fig <- fig %>% add_trace(x=sample_means, y=density, type='scatter')
+      geom_density(aes(colour='dodgerblue'), alpha=.8 ) +
+      
+      geom_line(data=normal_teo_df, aes(x=x, y=y,color="red"))+
+      scale_colour_manual(name='Lineas:',
+                          values=c("dodgerblue",'red'),
+                          labels=c('Density','Normal Teorica'))+
+      theme(legend.title = element_blank(), legend.justification = c(1, 1), legend.position = c(1, 1), )
     
-    
-    
-    
-    
-    #fig <- ggplot(as.data.frame(sample_means), aes(x=sample_means)) + 
-    #  geom_histogram(aes(y=..density..),bins=bins, colour="blue", fill="dodgerblue")+
-    #  geom_density(alpha=.8, colour='red') 
-
   }
+  
+  make_samp_hist <- function(n=300, sample_size=21, p=0.5) {
+    sim <- rbinom(n, sample_size, p)
+    m <- matrix(rbinom(n*sample_size, sample_size, p), ncol=sample_size)
+    sh_df <- as.data.frame(as.vector(m))
+    colnames(sh_df) <- 'samples'
+    
+    ggplot(sh_df,aes(x=samples)) + geom_histogram(aes(y=..density..),
+                                                  bins=sample_size, fill="grey", color="black")
+  }
+  
+  
+  output$samplehist <- renderPlotly({
+    
+    g <- make_samp_hist(input$obs,input$sample_size, input$p)
+    print(ggplotly(g, tooltip=c("name", "density", "samples") ))
+    
+  })
   
   output$distPlot <- renderPlotly({
     
+    
+    g <- tcl_viz(input$obs,input$sample_size, input$p) # Grafico ggplot2
+    
+    pg <- ggplotly(g) # grafico convertido a plotly graph
+    # rename label legends
+    pg$x$data[[2]]$name <- "Density"
+    pg$x$data[[3]]$name <- "Normal Teorica"
+    
+    
     # generate an rnorm distribution and plot it
-    print(ggplotly(tcl_viz(input$obs,input$sample_size, input$p)))
+    print(pg %>% 
+            layout(
+              legend = list(orientation = "v",
+                            bgcolor = 'rgba(0,0,0,0)', 
+                            y = 1, x = 0)))
   })
   
 })
@@ -113,4 +140,3 @@ server <- shinyServer(function(input, output) {
 
 # Create Shiny app ----
 shinyApp(ui = ui, server = server)
-
