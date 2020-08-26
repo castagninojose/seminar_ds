@@ -12,6 +12,9 @@ Sea $S_n = \\sum\\limits_{i=1}^n X_i$, entonces
 $$ \\lim\\limits_{n \\rightarrow \\infty} P \\Big( \\frac{S_n - n \\mu}{\\sigma \\sqrt{n}} \\leq z \\Big) = \\Phi(z)$$
 Donde $ \\Phi$ representa la función de distribución acumulada de una $ \\mathcal{N}(0,1)$"
 
+sample_dist_disclaimer <- "En estadística, la distribución binomial es una distribución de probabilidad discreta que cuenta el número de éxitos en una secuencia de $n$ ensayos de Bernoulli independientes entre sí, con una probabilidad fija $p$ de ocurrencia del éxito entre los ensayos. Un experimento de Bernoulli se caracteriza por ser dicotómico, esto es, sólo tiene dos resultados posibles. A uno de estos se denomina «éxito» y tiene una probabilidad de ocurrencia $p$ y al otro, «fracaso», con una probabilidad $q = 1 - p$. En la distribución binomial el experimento se repite $n$ veces, de forma independiente, y se trata de calcular la probabilidad de un determinado número de éxitos.
+En nuestro caso elgimos una distribución binomial ya que sabemos que si uno utiliza un p muy chico(cercano a cero) o muy grande (cercano a uno) las distribuciónes originales resultantes se alejan mucho de una normal y resulta interesante ver que así y todo sus sumas tienden en distribución a una normal."
+
 # Define UI for application that plots random distributions 
 ui <- shinyUI(fluidPage(
   
@@ -21,34 +24,47 @@ ui <- shinyUI(fluidPage(
   # Sidebar with a slider input for number of observations
   sidebarLayout(
     sidebarPanel(
-      sliderInput("obs", 
-                  "N:", 
-                  min = 2, 
-                  max = 2000, 
-                  value = 1000)
-      ,
-      sliderInput("sample_size",
-                  "Sample Size:",
-                  min = 2,
-                  max = 100,
-                  value = 21)
-      ,
-      sliderInput("p",
-                  "p:",
-                  min = 0,
-                  max = 1,
-                  value = 0.5)
-      
+      sliderInput(
+        "obs",
+        "N:",
+        min = 2,
+        max = 2000,
+        value = 10,
+        animate=TRUE
+      ),
+      sliderInput(
+        "sample_size",
+        "Sample Size:",
+        min = 2,
+        max = 100,
+        value = 21
+      ),
+      sliderInput(
+        "p",
+        "Probabilidad de éxito:",
+        min = 0,
+        max = 1,
+        value = 0.5
+        ),
     ),
+    
     
     # Show a plot of the generated distribution
     mainPanel(
       
       tabsetPanel(
         id='tabset',
-        tabPanel("TLC",  plotlyOutput("distPlot"),
-                 withMathJax(latex_theory)),
-        tabPanel("Sampling Distribution",  plotlyOutput("samplehist")))        
+        tabPanel(
+          "TLC",
+          plotlyOutput("distPlot"),
+          withMathJax(latex_theory)
+        ),
+        tabPanel(
+          "Sampling Distribution",
+          plotlyOutput("samplehist"),
+          withMathJax(sample_dist_disclaimer)
+        )
+      )        
       
 
     )
@@ -93,7 +109,7 @@ server <- shinyServer(function(input, output) {
       geom_line(data=normal_teo_df, aes(x=x, y=y,color="red"))+
       scale_colour_manual(name='Lineas:',
                           values=c("dodgerblue",'red'),
-                          labels=c('Density','Normal Teorica'))+
+                          labels=c('Density','Normal'))+
       theme(legend.title = element_blank(), legend.justification = c(1, 1), legend.position = c(1, 1), )
 
   }
@@ -102,9 +118,9 @@ server <- shinyServer(function(input, output) {
     sim <- rbinom(n, sample_size, p)
     m <- matrix(rbinom(n*sample_size, sample_size, p), ncol=sample_size)
     sh_df <- as.data.frame(as.vector(m))
-    colnames(sh_df) <- 'samples'
+    colnames(sh_df) <- 'muestras'
     
-    ggplot(sh_df,aes(x=samples)) + geom_histogram(aes(y=..density..),
+    ggplot(sh_df,aes(x=muestras)) + geom_histogram(aes(y=..density..),
                                                   bins=sample_size, fill="grey", color="black")
   }
   
@@ -124,8 +140,7 @@ server <- shinyServer(function(input, output) {
     pg <- ggplotly(g) # grafico convertido a plotly graph
     # rename label legends
     pg$x$data[[2]]$name <- "Density"
-    pg$x$data[[3]]$name <- "Normal Teorica"
-    
+    pg$x$data[[3]]$name <- "Normal"
     
     # generate an rnorm distribution and plot it
     print(pg %>% 
