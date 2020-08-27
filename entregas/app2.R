@@ -4,16 +4,21 @@ library(docstring)
 library(ggplot2)
 library(plotly)
 
-latex_theory <- "En la teoría de probabilidades, el teorema del limite central (TLC) dice que, cuando sumamos variables aleatorias independientes,
+
+theory_intro <- "En la teoría de probabilidades, el teorema del limite central (TLC) dice que, cuando sumamos variables aleatorias independientes,
 sus sumas tienden a una distribución normal (una campana gaussiana) incluso si las variables originales no tienen distribución normal.
 Este teorema es clave en la teoría de probabilidades dado que implica que los métodos estocásticos que funcionan para distribuciones normales son aplicables
-a problemas que involucran otro tipo de distribuciones. Formalmente, sea $ \\{X_1,\\ldots ,X_n\\}$ una muestra i.i.d de tamaño $n$ con media $\\mu$ y varianza $0< \\sigma^2 < \\infty$. 
+a problemas que involucran otro tipo de distribuciones."
+
+theory_math <- "Formalmente, sea $ \\{X_1,\\ldots ,X_n\\}$ una muestra i.i.d de tamaño $n$ con media $\\mu$ y varianza $0< \\sigma^2 < \\infty$. 
 Sea $S_n = \\sum\\limits_{i=1}^n X_i$, entonces
 $$ \\lim\\limits_{n \\rightarrow \\infty} P \\Big( \\frac{S_n - n \\mu}{\\sigma \\sqrt{n}} \\leq z \\Big) = \\Phi(z)$$
-Donde $ \\Phi$ representa la función de distribución acumulada de una $ \\mathcal{N}(0,1)$"
+Donde $ \\Phi$ representa la función de distribución acumulada de una $ \\mathcal{N}(0,1)$."
 
 sample_dist_disclaimer <- "En estadística, la distribución binomial es una distribución de probabilidad discreta que cuenta el número de éxitos en una secuencia de $n$ ensayos de Bernoulli independientes entre sí, con una probabilidad fija $p$ de ocurrencia del éxito entre los ensayos. Un experimento de Bernoulli se caracteriza por ser dicotómico, esto es, sólo tiene dos resultados posibles. A uno de estos se denomina «éxito» y tiene una probabilidad de ocurrencia $p$ y al otro, «fracaso», con una probabilidad $q = 1 - p$. En la distribución binomial el experimento se repite $n$ veces, de forma independiente, y se trata de calcular la probabilidad de un determinado número de éxitos.
 En nuestro caso elgimos una distribución binomial ya que sabemos que si uno utiliza un p muy chico(cercano a cero) o muy grande (cercano a uno) las distribuciónes originales resultantes se alejan mucho de una normal y resulta interesante ver que así y todo sus sumas tienden en distribución a una normal."
+
+video_intro <- "Este setting tiene la particularidad de que se puede construir un modelo físico para el caso $p = \\frac{1}{2}$, que se conoce como Galton board (tablero de Galton):"
 
 # Define UI for application that plots random distributions 
 ui <- shinyUI(fluidPage(
@@ -57,12 +62,19 @@ ui <- shinyUI(fluidPage(
         tabPanel(
           "TLC",
           plotlyOutput("distPlot"),
-          withMathJax(latex_theory)
+          HTML('<br><br>'),
+          withMathJax(theory_intro),
+          HTML('<br><br><br>'),
+          withMathJax(theory_math)
         ),
         tabPanel(
           "Sampling Distribution",
           plotlyOutput("samplehist"),
-          withMathJax(sample_dist_disclaimer)
+          withMathJax(sample_dist_disclaimer),
+          HTML('<br><br><br>'),
+          withMathJax(video_intro),
+          HTML('<br><br>'),
+          HTML('<iframe width="560" height="315" src="https://www.youtube.com/embed/EvHiee7gs9Y" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>')
         )
       )        
       
